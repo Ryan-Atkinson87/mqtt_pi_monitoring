@@ -4,6 +4,7 @@ idna==3.10
 logger==1.4
 mmh3==5.1.0
 orjson==3.10.18
+psutil==7.0.0
 python-dotenv==1.1.1
 requests==2.32.4
 tb-mqtt-client==1.13.6
