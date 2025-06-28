@@ -1,14 +1,34 @@
-"""
-attributes.py
-"""
-import os
+import socket
+import uuid
+
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))  # Doesn't send data, just selects the right interface
+    ip_address = s.getsockname()[0]
+    s.close()
+
+    return ip_address
+
+def get_mac_address():
+    mac_address = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
+                            for ele in range(0,8*6,8)][::-1])
+    
+    return mac_address
 
 def get_attributes():
     data = {}
-    ip_address = os.popen('''hostname -I''').readline().replace('\n', '').replace(',', '.')[:-1]
-    mac_address = os.popen('''cat /sys/class/net/*/address''').readline().replace('\n', '').replace(',', '.')
+    errors = []
 
-    data["ip_address"] = ip_address
-    data["mac_address"] = mac_address
+    try:
+        data['ip_address'] = get_ip_address()
+    except Exception as e:
+        errors.append(f"Error getting ip address: {e}")
+        data['ip_address'] = None
     
-    return data
+    try:
+        data['mac_address'] = get_mac_address()
+    except Exception as e:
+        errors.append(f"Error getting mac address: {e}")
+        data['mac_address'] = None
+
+    return data, errors

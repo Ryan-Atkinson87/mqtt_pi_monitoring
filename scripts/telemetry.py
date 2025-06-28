@@ -11,42 +11,30 @@ def get_cpu_usage():
     return cpu_usage
 
 def get_cpu_temp():
-    try:
-        with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
-            temp_str = f.readline()
-            return float(temp_str) / 1000.0
-    except Exception:
-        return None
+    with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
+        temp_str = f.readline()
+        return float(temp_str) / 1000.0
 
 def get_gpu_temp():
+    vcgencmd_path = "/usr/bin/vcgencmd"
     try:
-        result = subprocess.run(['vcgencmd', 'measure_temp'], capture_output=True, text=True)
+        result = subprocess.run([vcgencmd_path, 'measure_temp'], capture_output=True, text=True)
         if result.returncode == 0:
             temp_str = result.stdout.strip()
             temp_value = temp_str.split('=')[1].replace("'C", "")
             return float(temp_value)
-        else:
-            return None
     except Exception:
-        return None
+        pass
+    return None
 
+        
 def get_mem_usage():
-    try:
-        return psutil.virtual_memory().percent
-    except Exception:
-        return None
+    mem_usage = psutil.virtual_memory().percent
+    return mem_usage
 
 def get_disk_usage():
-    try:
-        return psutil.disk_usage('/').percent
-    except Exception:
-        return None
-
-def get_uptime():
-    try:
-        return time.time() - psutil.boot_time()
-    except Exception:
-        return None
+    disk_usage = psutil.disk_usage('/').percent
+    return disk_usage
 
 def get_telemetry():
     data = {}

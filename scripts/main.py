@@ -36,8 +36,16 @@ def main():
     client.set_server_side_rpc_request_handler(rpc_callback)
 
     while not client.stopped:
-        attributes = get_attributes()
+        # Get attributes, log errors
+        try:
+            attributes, errors = get_attributes()
+            
+            for err in errors:
+                logger.error(f"Attributes error: {err}")
+        except Exception as e:
+            logger.error(f"Attributes error: {err}")
 
+        # Get telemetry, log errors
         try:
             telemetry, errors = get_telemetry()
 
