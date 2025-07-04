@@ -43,7 +43,7 @@ def main():
             for err in errors:
                 logger.error(f"Attributes error: {err}")
         except Exception as e:
-            logger.error(f"Attributes error: {err}")
+            logger.error(f"Attributes error: {e}")
 
         # Get telemetry, log errors
         try:
