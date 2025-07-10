@@ -13,6 +13,7 @@ Usage:
 
 from tb_gateway_mqtt import TBDeviceMqttClient
 
+
 class TBClientWrapper:
     def __init__(self, tb_server, tb_token, logger):
         self.client = TBDeviceMqttClient(tb_server, username=tb_token)
