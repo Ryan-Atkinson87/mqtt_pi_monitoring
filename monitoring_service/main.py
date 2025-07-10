@@ -16,20 +16,23 @@ from agent import MonitoringAgent
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger("main")
+    logger = logging.getLogger(__name__)
 
     config_loader = ConfigLoader(logger)
     config = config_loader.as_dict()
 
     collector = TelemetryCollector()
 
-    client = TBClientWrapper(server, token, logger)
+    server = config["server"]
+    token = config["token"]
+    poll_period = config["poll_period"]
 
-    poll_period = 5  # config["poll_period"]
-    # TODO: add poll_period to config.json when created
+    client = TBClientWrapper(server,
+                             token,
+                             logger)
 
-    agent = MonitoringAgent(config["server"],
-                            config["token"],
+    agent = MonitoringAgent(server,
+                            token,
                             logger,
                             collector,
                             client,

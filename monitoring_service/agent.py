@@ -41,7 +41,6 @@ class MonitoringAgent:
         self.logger = logger
         self.collector = telemetry_collector
         self.poll_period = poll_period
-        # TODO: add poll_period to config.json when created
         self.tb_client = tb_client
 
     def start(self):

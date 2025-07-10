@@ -48,6 +48,7 @@ class ConfigLoader:
             raise
 
         self._validate_or_raise()
+        self.poll_period = self.get_poll_period()
 
     def as_dict(self):
         """
@@ -57,7 +58,7 @@ class ConfigLoader:
         return {
             "token": self.token,
             "server": self.server,
-            "config": self.config
+            "poll_period": self.poll_period,
         }
 
     def _validate_or_raise(self):
@@ -70,3 +71,14 @@ class ConfigLoader:
             error_message = f"Missing required environment variables: {', '.join(missing)}"
             self.logger.error(error_message)
             raise EnvironmentError(error_message)
+
+    def get_poll_period(self):
+        raw_value = self.config.get("poll_period", 60)  # fallback in case it's missing
+        try:
+            poll_period = int(raw_value)
+            if poll_period < 1:
+                raise ValueError("Poll period must be >= 1")
+            return poll_period
+        except (ValueError, TypeError) as e:
+            self.logger.error(f"Invalid poll_period value: {raw_value} ({e})")
+            raise
