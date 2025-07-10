@@ -21,6 +21,7 @@ class MonitoringAgent:
                  access_token,
                  logger,
                  telemetry_collector,
+                 tb_client,
                  poll_period=60
                  ):
         self.tb_host = tb_host
@@ -29,6 +30,7 @@ class MonitoringAgent:
         self.collector = telemetry_collector
         self.poll_period = poll_period
         # TODO: add poll_period to config.json when created
+        self.tb_client = tb_client
 
     def start(self):
         self.logger.info("MonitoringAgent started.")
@@ -43,9 +45,11 @@ class MonitoringAgent:
             time.sleep(delay)
 
     def read_and_send_telemetry(self):
-        self.logger.info("Reading telemetry... (stub)")
+        self.logger.info("Reading telemetry...")
 
         telemetry, errors = self.collector.get_telemetry()
         self.logger.info(f"Collected telemetry: {telemetry}")
         for err in errors:
             self.logger.error(f"Telemetry error: {err}")
+
+        self.tb_client.send_telemetry(telemetry)
