@@ -4,11 +4,11 @@ old-main.py
 
 import time
 import os
-from connection import attribute_callback, rpc_callback, sync_state
+from monitoring_service.archived.connection import attribute_callback, rpc_callback, sync_state
 from telemetry import get_telemetry
-from attributes import get_attributes
+from monitoring_service.archived.attributes import get_attributes
 from dotenv import load_dotenv
-from error_logging import setup_logging
+from monitoring_service.archived.error_logging import setup_logging
 from tb_gateway_mqtt import TBDeviceMqttClient
 
 load_dotenv()
