@@ -18,6 +18,21 @@ from dotenv import load_dotenv
 
 
 class ConfigLoader:
+    """
+    Handles loading and validating environment variables and JSON configuration.
+
+    Uses `python-dotenv` to load values from a `.env` file and reads runtime settings
+    from a `config.json` file. Ensures required variables are present and provides
+    access to all configuration data via the `as_dict()` method.
+
+    Args:
+        logger (logging.Logger): Logger used to report missing config or file errors.
+
+    Raises:
+        EnvironmentError: If required environment variables are missing.
+        FileNotFoundError: If the configuration file cannot be found.
+    """
+
     def __init__(self, logger):
         load_dotenv()
         self.token = os.getenv("ACCESS_TOKEN")
@@ -32,16 +47,20 @@ class ConfigLoader:
             self.logger.error(f"Could not load config file {e}")
             raise
 
-        self.validate_or_raise()
+        self._validate_or_raise()
 
     def as_dict(self):
+        """
+        Gets the token, server and config values
+        :return: a dict containing the configuration values
+        """
         return {
             "token": self.token,
             "server": self.server,
             "config": self.config
         }
 
-    def validate_or_raise(self):
+    def _validate_or_raise(self):
         missing = []
         if not self.token:
             missing.append("ACCESS_TOKEN")

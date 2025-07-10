@@ -16,6 +16,18 @@ import time
 
 
 class MonitoringAgent:
+    """
+    Manages telemetry sending to ThingsBoard. Uses poll_period to determine when to send data to ThingsBoard.
+    Logs the collected telemetry before sending to ThingsBoard.
+
+    Args:
+        tb_host (str): ThingsBoard host to connect to.
+        access_token (str): Access token to connect with.
+        logger (Logger): Logger to use.
+        telemetry_collector (TelemetryCollector): Telemetry collector instance.
+        tb_client (ThingsBoardClient): ThingsBoard client instance.
+        poll_period (int): Time in seconds between telemetry updates.
+    """
     def __init__(self,
                  tb_host,
                  access_token,
@@ -33,18 +45,28 @@ class MonitoringAgent:
         self.tb_client = tb_client
 
     def start(self):
+        """
+        Starts the monitoring loop that periodically collects and sends telemetry data.
+
+        This method runs indefinitely, sleeping for `poll_period` seconds between each
+        telemetry collection cycle. It logs each tick and handles timing delays.
+
+        Raises:
+            Any unexpected exceptions from telemetry collection or transmission will propagate.
+        """
+
         self.logger.info("MonitoringAgent started.")
         # Main loop
         while True:
             start_time = time.time()
-            self.read_and_send_telemetry()
+            self._read_and_send_telemetry()
             self.logger.info("Agent test tick...")
             end_time = time.time()
             elapsed = end_time - start_time
             delay = max(0, int(self.poll_period - elapsed))
             time.sleep(delay)
 
-    def read_and_send_telemetry(self):
+    def _read_and_send_telemetry(self):
         self.logger.info("Reading telemetry...")
 
         telemetry, errors = self.collector.get_telemetry()
