@@ -1,65 +1,44 @@
 """
 main.py
+
+Runs the monitoring service by setting up configuration, logging, telemetry collection,
+and ThingsBoard connectivity. Loads `.env` and `config.json`, establishes the MQTT connection,
+and starts the MonitoringAgent loop.
+
+This script is the main entry point for the monitoring application.
 """
+import logging
+from config_loader import ConfigLoader
+from telemetry import TelemetryCollector
+from TBClientWrapper import TBClientWrapper
+from agent import MonitoringAgent
 
-import time
-import os
-from connection import attribute_callback, rpc_callback, sync_state
-from telemetry import get_telemetry
-from attributes import get_attributes
-from dotenv import load_dotenv
-from error_logging import setup_logging
-from tb_gateway_mqtt import TBDeviceMqttClient
-
-load_dotenv()
-
-ACCESS_TOKEN = os.getenv("ACCESS_TOKEN") or "ENTER_TOKEN"
-THINGSBOARD_SERVER = os.getenv("THINGSBOARD_SERVER") or "IP Not Set"
-   
-client = None
-logger = setup_logging()
-   
-# default blinking period
-period = 1.0
 
 def main():
-    global client
-    client = TBDeviceMqttClient(THINGSBOARD_SERVER, username=ACCESS_TOKEN)
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("main")
+
+    config_loader = ConfigLoader(logger)
+    config = config_loader.as_dict()
+
+    collector = TelemetryCollector()
+
+    client = TBClientWrapper(server, token, logger)
+
+    poll_period = 5  # config["poll_period"]
+    # TODO: add poll_period to config.json when created
+
+    agent = MonitoringAgent(config["server"],
+                            config["token"],
+                            logger,
+                            collector,
+                            client,
+                            poll_period)
+
     client.connect()
-    client.request_attributes(shared_keys=['blinkingPeriod'], callback=sync_state)
-    
-    # now attribute_callback will process shared attribute request from server
-    sub_id_1 = client.subscribe_to_attribute("blinkingPeriod", attribute_callback)
-    sub_id_2 = client.subscribe_to_all_attributes(attribute_callback)
+    agent.start()
+    client.disconnect()
 
-    # now rpc_callback will process rpc requests from server
-    client.set_server_side_rpc_request_handler(rpc_callback)
 
-    while not client.stopped:
-        # Get attributes, log errors
-        try:
-            attributes, errors = get_attributes()
-            
-            for err in errors:
-                logger.error(f"Attributes error: {err}")
-        except Exception as e:
-            logger.error(f"Attributes error: {e}")
-
-        # Get telemetry, log errors
-        try:
-            telemetry, errors = get_telemetry()
-
-            for err in errors:
-                logger.error(f"Telemetry error: {err}")
-        except Exception as e:
-            logger.error(f"Unexpected error while getting telemetry data: {e}")
-        
-        client.send_attributes(attributes)
-        client.send_telemetry(telemetry)
-        time.sleep(60)
-   
-if __name__=='__main__':
-    if ACCESS_TOKEN != "ENTER_TOKEN":
-        main()
-    else:
-        print("Please change the ACCESS_TOKEN variable to match your device access token and run script again.")
+if __name__ == "__main__":
+    main()
