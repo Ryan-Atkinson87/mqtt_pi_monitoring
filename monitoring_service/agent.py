@@ -33,13 +33,15 @@ class MonitoringAgent:
                  access_token,
                  logger,
                  telemetry_collector,
+                 attributes_collector,
                  tb_client,
                  poll_period=60
                  ):
         self.tb_host = tb_host
         self.access_token = access_token
         self.logger = logger
-        self.collector = telemetry_collector
+        self.telemetry_collector = telemetry_collector
+        self.attributes_collector = attributes_collector
         self.poll_period = poll_period
         self.tb_client = tb_client
 
@@ -59,18 +61,26 @@ class MonitoringAgent:
         while True:
             start_time = time.time()
             self._read_and_send_telemetry()
-            self.logger.info("Agent test tick...")
+            self._read_and_send_attributes()
             end_time = time.time()
             elapsed = end_time - start_time
             delay = max(0, int(self.poll_period - elapsed))
             time.sleep(delay)
 
     def _read_and_send_telemetry(self):
+        # TODO: move error logging into telemetry.py, remove from this function
         self.logger.info("Reading telemetry...")
 
-        telemetry, errors = self.collector.get_telemetry()
+        telemetry, errors = self.telemetry_collector.get_telemetry()
         self.logger.info(f"Collected telemetry: {telemetry}")
         for err in errors:
             self.logger.error(f"Telemetry error: {err}")
 
         self.tb_client.send_telemetry(telemetry)
+
+    def _read_and_send_attributes(self):
+        self.logger.info("Reading attributes...")
+        attributes = self.attributes_collector.as_dict()
+        self.logger.info(f"Collected attributes: {attributes}")
+
+        self.tb_client.send_attributes(attributes)

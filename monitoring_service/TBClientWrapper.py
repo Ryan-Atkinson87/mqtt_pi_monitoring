@@ -9,6 +9,8 @@ Classes:
 
 Usage:
     Instantiate TBClientWrapper and call .connect() to begin the monitoring loop.
+    call .send_telemetry to send telemetry data.
+    call .send_attributes to send attributes data.
 """
 
 from tb_gateway_mqtt import TBDeviceMqttClient
@@ -52,6 +54,20 @@ class TBClientWrapper:
             self.client.send_telemetry(telemetry)
         except Exception as e:
             self.logger.error(f"Failed to send telemetry to ThingsBoard {e}")
+
+    def send_attributes(self, attributes: dict):
+        """
+        Sends attributes dictionary to ThingsBoard.
+
+        :param attributes: dictionary containing the attributes data
+        """
+        if not attributes:
+            self.logger.warning("Attributes data is empty. Skipping send.")
+            return
+        try:
+            self.client.send_attributes(attributes)
+        except Exception as e:
+            self.logger.error(f"Failed to send attributes data to ThingsBoard {e}")
 
     def disconnect(self):
         """

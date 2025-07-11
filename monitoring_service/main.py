@@ -10,6 +10,7 @@ This script is the main entry point for the monitoring application.
 import logging
 from config_loader import ConfigLoader
 from telemetry import TelemetryCollector
+from attributes import AttributesCollector
 from TBClientWrapper import TBClientWrapper
 from agent import MonitoringAgent
 
@@ -21,11 +22,15 @@ def main():
     config_loader = ConfigLoader(logger)
     config = config_loader.as_dict()
 
-    collector = TelemetryCollector()
-
     server = config["server"]
     token = config["token"]
     poll_period = config["poll_period"]
+    mount_path = config["mount_path"]
+    device_name = config["device_name"]
+
+    telemetry_collector = TelemetryCollector(mount_path)
+    attributes_collector = AttributesCollector(device_name,
+                                               logger)
 
     client = TBClientWrapper(server,
                              token,
@@ -34,7 +39,8 @@ def main():
     agent = MonitoringAgent(server,
                             token,
                             logger,
-                            collector,
+                            telemetry_collector,
+                            attributes_collector,
                             client,
                             poll_period)
 

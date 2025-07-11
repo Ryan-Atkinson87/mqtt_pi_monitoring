@@ -27,6 +27,9 @@ class TelemetryCollector:
     Uses get_telemetry to collect telemetry from the Raspberry Pi in the form of a
     dictionary of telemetry data.
     """
+    def __init__(self, mount_path="/"):
+        self.mount_path = mount_path
+
     @staticmethod
     def _get_cpu_usage():
         cpu_usage = psutil.cpu_percent(interval=1)
@@ -54,13 +57,13 @@ class TelemetryCollector:
         mem_usage = psutil.virtual_memory().percent
         return mem_usage
 
-    @staticmethod
-    def _get_disk_usage():
+    def _get_disk_usage(self):
         # TODO: support configurable mount point
-        disk_usage = psutil.disk_usage('/').percent
+        disk_usage = psutil.disk_usage(self.mount_path).percent
         return disk_usage
 
     def get_telemetry(self):
+        # TODO: move error logging into this function, remove from agent.py
         """
         Collects system metrics from a Raspberry Pi.
         :return: dictionary of telemetry data, list of errors encountered
