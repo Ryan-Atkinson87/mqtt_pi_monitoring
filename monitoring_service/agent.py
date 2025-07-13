@@ -47,10 +47,12 @@ class MonitoringAgent:
 
     def start(self):
         """
-        Starts the monitoring loop that periodically collects and sends telemetry data.
+        Starts the monitoring loop that periodically collects and sends telemetry and attribute data.
 
         This method runs indefinitely, sleeping for `poll_period` seconds between each
-        telemetry collection cycle. It logs each tick and handles timing delays.
+        telemetry/attributes collection cycle. It logs each tick and handles timing delays.
+
+        Attributes data sent on every cycle in case of change. ThingsBoard will only log on change.
 
         Raises:
             Any unexpected exceptions from telemetry collection or transmission will propagate.
@@ -70,7 +72,6 @@ class MonitoringAgent:
     def _read_and_send_telemetry(self):
         # TODO: move error logging into telemetry.py, remove from this function
         self.logger.info("Reading telemetry...")
-
         telemetry, errors = self.telemetry_collector.get_telemetry()
         self.logger.info(f"Collected telemetry: {telemetry}")
         for err in errors:

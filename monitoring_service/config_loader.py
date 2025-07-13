@@ -48,7 +48,10 @@ class ConfigLoader:
             raise
 
         self._validate_or_raise()
-        self.poll_period = self.get_poll_period()
+        self.poll_period = self._get_poll_period()
+        self.device_name = self._get_device_name()
+        self.mount_path = self._get_mount_path()
+        self.log_level = self._get_log_level()
 
     def as_dict(self):
         """
@@ -59,6 +62,9 @@ class ConfigLoader:
             "token": self.token,
             "server": self.server,
             "poll_period": self.poll_period,
+            "device_name": self.device_name,
+            "mount_path": self.mount_path,
+            "log_level": self.log_level,
         }
 
     def _validate_or_raise(self):
@@ -72,7 +78,7 @@ class ConfigLoader:
             self.logger.error(error_message)
             raise EnvironmentError(error_message)
 
-    def get_poll_period(self):
+    def _get_poll_period(self):
         raw_value = self.config.get("poll_period", 60)  # fallback in case it's missing
         try:
             poll_period = int(raw_value)
@@ -81,4 +87,31 @@ class ConfigLoader:
             return poll_period
         except (ValueError, TypeError) as e:
             self.logger.error(f"Invalid poll_period value: {raw_value} ({e})")
+            raise
+
+    def _get_device_name(self):
+        try:
+            return str(self.config["device_name"])
+        except KeyError:
+            self.logger.error("Missing required config: device_name")
+            raise
+        except (ValueError, TypeError) as e:
+            self.logger.error(f"Invalid device_name value: {self.config.get('device_name')} ({e})")
+            raise
+
+    def _get_mount_path(self):
+        try:
+            return str(self.config["mount_path"])
+        except KeyError:
+            self.logger.error("Missing required config: mount_path")
+            raise
+        except (ValueError, TypeError) as e:
+            self.logger.error(f"Invalid mount_path value: {self.config.get('mount_path')} ({e})")
+            raise
+
+    def _get_log_level(self):
+        try:
+            return str(self.config.get("log_level", "INFO"))
+        except (ValueError, TypeError) as e:
+            self.logger.error(f"Invalid log_level value: {self.config.get('log_level')} ({e})")
             raise
