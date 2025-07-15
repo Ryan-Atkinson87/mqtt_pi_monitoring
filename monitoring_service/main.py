@@ -13,14 +13,21 @@ from telemetry import TelemetryCollector
 from attributes import AttributesCollector
 from TBClientWrapper import TBClientWrapper
 from agent import MonitoringAgent
-
+from logging_setup import setup_logging
 
 def main():
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+    bootstrap_logger = logging.getLogger("bootstrap")
+    bootstrap_logger.setLevel(logging.INFO)
+    bootstrap_logger.addHandler(logging.StreamHandler())
 
-    config_loader = ConfigLoader(logger)
+    config_loader = ConfigLoader(logger=bootstrap_logger)
     config = config_loader.as_dict()
+
+    logger = setup_logging(
+        log_dir="log",
+        log_file_name="monitoring_service.log",
+        log_level=config["log_level"]
+    )
 
     server = config["server"]
     token = config["token"]

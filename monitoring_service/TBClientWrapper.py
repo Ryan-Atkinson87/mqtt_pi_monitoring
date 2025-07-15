@@ -13,21 +13,22 @@ Usage:
     call .send_attributes to send attributes data.
 """
 
-from tb_gateway_mqtt import TBDeviceMqttClient
+from tb_device_mqtt import TBDeviceMqttClient
 
 
 class TBClientWrapper:
     """
     Handles the connection to the ThingsBoard and sends a dictionary containing telemetry data.
 
-    Uses tb_gateway_mqtt to connect, send telemetry and disconnect from ThingsBoard.
+    Uses tb_device_mqtt to connect, send telemetry and disconnect from ThingsBoard.
 
     Raises:
         Exception: If cannot connect to ThingsBoard.
         Exception: If cannot disconnect from ThingsBoard.
     """
-    def __init__(self, tb_server, tb_token, logger):
-        self.client = TBDeviceMqttClient(tb_server, username=tb_token)
+
+    def __init__(self, tb_server, tb_token, logger, client_class=TBDeviceMqttClient):
+        self.client = client_class(tb_server, username=tb_token)
         self.logger = logger
 
     def connect(self):
