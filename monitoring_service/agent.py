@@ -77,11 +77,15 @@ class MonitoringAgent:
         for err in errors:
             self.logger.error(f"Telemetry error: {err}")
 
+        self.logger.info("Sending telemetry...")
         self.tb_client.send_telemetry(telemetry)
+        self.logger.info("Telemetry sent.")
 
     def _read_and_send_attributes(self):
         self.logger.info("Reading attributes...")
         attributes = self.attributes_collector.as_dict()
         self.logger.info(f"Collected attributes: {attributes}")
 
+        self.logger.info("Sending attributes...")
         self.tb_client.send_attributes(attributes)
+        self.logger.info("Attributes sent.")

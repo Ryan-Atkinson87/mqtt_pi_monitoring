@@ -8,12 +8,12 @@ and starts the MonitoringAgent loop.
 This script is the main entry point for the monitoring application.
 """
 import logging
-from config_loader import ConfigLoader
-from telemetry import TelemetryCollector
-from attributes import AttributesCollector
-from TBClientWrapper import TBClientWrapper
-from agent import MonitoringAgent
-from logging_setup import setup_logging
+from monitoring_service.config_loader import ConfigLoader
+from monitoring_service.telemetry import TelemetryCollector
+from monitoring_service.attributes import AttributesCollector
+from monitoring_service.TBClientWrapper import TBClientWrapper
+from monitoring_service.agent import MonitoringAgent
+from monitoring_service.logging_setup import setup_logging
 
 def main():
     bootstrap_logger = logging.getLogger("bootstrap")

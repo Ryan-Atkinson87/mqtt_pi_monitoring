@@ -1,6 +1,6 @@
 {
-  "poll_period": 60,
-  "device_name": "RasPi5_01",
+  "poll_period": 5,
+  "device_name": "RasPiZero_01",
   "mount_path": "/",
   "log_level": "INFO"
 }
